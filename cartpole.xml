@@ -1,0 +1,62 @@
+<mujoco model="cart-pole"><!-- 模型名称 -->
+  <include file="./common/skybox.xml"/>
+  <include file="./common/visual.xml"/>
+  <include file="./common/materials.xml"/>
+
+  <!-- option节点：其中timestep表示仿真的最小步长，integrator表示积分器为RK4（4阶龙格库塔） ,此外，加入了重力及其方向-->
+  <option timestep="0.01" integrator="RK4" gravity="0 -9.81 0">
+    <flag contact="disable" energy="enable"/>
+  </option>
+
+  <!--default用来给模型提供基础参数/默认属性 -->
+  <default>
+    <!--对铰链进行初始建模-->
+    <default class="pole">
+      <!--修改：将铰链活动轴改为Z轴，关节阻力改为0-->
+      <joint type="hinge" axis="0 0 1"  damping="0"/>
+      <!--capsule表示类型为胶囊体，fromto表示胶囊体的大小，前三个数字表示起点的三维坐标，后面三个数字表示终点的三维坐标-->
+      <!--修改为y上面长度为1，因此摆杆的长度为1-->
+      <geom type="capsule" fromto="0 0 0 0 1 0" size="0.045" material="self" mass=".1"/>
+    </default>
+  </default>
+
+  <!--其中，geom表示几何体 -->
+  <worldbody>
+    <!--需要修改相机位置-->
+    <light name="light" pos="0 0 6"/>
+    <!--修改固定视角的相机，0 -1 0表示相机镜头朝向，应该改为Z的负向-->
+    <!--camera name="fixed" pos="0 1 4" zaxis="0 1 -1"/-->
+    <!--修改：pos位置改为0 1 5-->
+    <camera name="lookatcart" mode="track" target="cart" pos="0 1 5"/>
+    <!--修改：地板需要改为平行于ZX平面的，通过zaxis将默认法线改为y轴，平面本身就变为了XY平面 -->
+    <geom name="floor" pos="0 -0.05 0" size="4 0.2 4" type="plane" material="grid" zaxis="0 1 0"/>
+    <!--修改两个滑杆的位置 -->
+    <geom name="rail1" type="capsule" pos="0  1 0.07" zaxis="1 0 0" size="0.02 2" material="decoration" />
+    <geom name="rail2" type="capsule" pos="0  1 -0.07" zaxis="1 0 0" size="0.02 2" material="decoration" />
+    <!--body代表可以实际交互的东西 ，一个body只能有一个freejoint，而且需要在最外层，代表了空间自由度-->
+    <!--将小车改为位置在Y上-->
+    <body name="cart" pos="0 1 0">
+      <!--关节，只有joint是只能活动，不能驱动，需要搭配驱动器使用-->`
+      <!--slide表示线性关节，axis表示活动轴，下面表示运动方向为X，range表示限制，damping表示阻尼-->
+      <joint name="slider" type="slide" limited="true" axis="1 0 0" range="-1.8 1.8" solreflimit=".08 1" damping="5e-4"/>
+      <geom name="cart" type="box" size="0.2 0.1 0.1" material="self"  mass="1"/>
+      <body name="pole_1" childclass="pole">
+        <joint name="hinge_1"/>
+        <geom name="pole_1"/>
+      </body>
+    </body>
+  </worldbody>
+  <!--驱动器-->
+  <actuator>
+    <!--name表示驱动器的名字，也就是显示在simulate界面上的名字；joint表示驱动器当前驱动的哪一个活动关节；ctrlrange表示在simulate界面上的控制范围-->
+    <motor name="slide" joint="slider" gear="1" ctrllimited="true" ctrlrange="-80 80" />
+  </actuator>
+    <!--还需要四个传感器：位置、速度、角度、角速度-->
+  <sensor>
+    <jointpos name="joint1_pos_sensor" joint="slider"/>
+    <jointvel name="joint1_vel_sensor" joint="slider"/>
+    <!--在mujoco中，hinge的角度值会一直增加（弧度），需要在控制软件中，将后面的参数对360度取余数，如：angle = angle % 360  # 将角度限制在[0, 360)之间-->
+    <jointpos name="joint2_pos_sensor" joint="hinge_1"/>
+    <jointvel name="joint2_vel_sensor" joint="hinge_1"/>
+  </sensor>
+</mujoco>

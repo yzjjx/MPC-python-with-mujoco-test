@@ -1,0 +1,44 @@
+<mujoco model="cart-pole"><!-- 模型名称 -->
+  <include file="./common/skybox.xml"/>
+  <include file="./common/visual.xml"/>
+  <include file="./common/materials.xml"/>
+
+  <!-- option节点：其中timestep表示仿真的最小步长，integrator表示积分器为RK4（4阶龙格库塔） -->
+  <option timestep="0.01" integrator="RK4" gravity="0 0 -9.81">
+    <flag contact="disable" energy="enable"/>
+  </option>
+
+  <!--default用来给模型提供基础参数/默认属性 -->
+  <default>
+    <default class="pole">
+      <joint type="hinge" axis="0 1 0"  damping="2e-6"/>
+      <geom type="capsule" fromto="0 0 0 0 0 1" size="0.045" material="self" mass=".1"/>
+    </default>
+  </default>
+
+  <!--其中，geom表示几何体 -->
+  <worldbody>
+    <light name="light" pos="0 0 6"/>
+    <camera name="fixed" pos="0 -4 1" zaxis="0 -1 0"/>
+    <camera name="lookatcart" mode="targetbody" target="cart" pos="0 -2 2"/>
+    <geom name="floor" pos="0 0 -.05" size="4 4 .2" type="plane" material="grid"/>
+    <geom name="rail1" type="capsule" pos="0  .07 1" zaxis="1 0 0" size="0.02 2" material="decoration" />
+    <geom name="rail2" type="capsule" pos="0 -.07 1" zaxis="1 0 0" size="0.02 2" material="decoration" />
+    <!--body代表可以实际交互的东西 ，一个body只能有一个freejoint，而且需要在最外层，代表了空间自由度-->
+    <body name="cart" pos="0 0 1">
+      <!--关节，只有joint是只能活动，不能驱动，需要搭配驱动器使用-->
+      <!--slide表示线性关节，axis表示活动轴，下面表示运动方向为X，range表示限制，damping表示阻尼-->
+      <joint name="slider" type="slide" limited="true" axis="1 0 0" range="-1.8 1.8" solreflimit=".08 1" damping="5e-4"/>
+      <geom name="cart" type="box" size="0.2 0.15 0.1" material="self"  mass="1"/>
+      <body name="pole_1" childclass="pole">
+        <joint name="hinge_1"/>
+        <geom name="pole_1"/>
+      </body>
+    </body>
+  </worldbody>
+  <!--驱动器-->
+  <actuator>
+    <!--name表示驱动器的名字，也就是显示在simulate界面上的名字；joint表示驱动器当前驱动的哪一个活动关节；ctrlrange表示在simulate界面上的控制范围-->
+    <motor name="slide" joint="slider" gear="10" ctrllimited="true" ctrlrange="-60 60" />
+  </actuator>
+</mujoco>
