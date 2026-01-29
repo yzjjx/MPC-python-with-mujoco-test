@@ -3,17 +3,26 @@
 基于Dr.CAN视频，首先将代码转换到python的环境，因为之前建模是基于xy平面的，将xml文件转换为xy平面
 ## 相关链接
 视频链接：【【MPC模型预测控制器】1_最优化控制和基本概念】 https://www.bilibili.com/video/BV1cL411n7KV/?share_source=copy_web&vd_source=8f5fa48049054344abfb574dffb160ed
+
 倒立摆xml模型：https://github.com/google-deepmind/dm_control
 
 ## 文件解释
 ori.xml：原始的倒立摆mujoco模型文件，该文件不适用于xy平面的倒立摆建模
+
 cartpole.xml：更改后的mujoco模型文件，更换了坐标系、更换了相机位置、加入了传感器、增加了驱动器控制范围
+
 math_MPC_test.py：倒立摆数学仿真，使用前向欧拉法离散化
+
 model_MPC_test.py:倒立摆mujoco仿真
+
 Prediction.py：最优化、预测部分函数，包含加速版本与不加速版本，不加速版本与Dr.CAN视频基本一致
+
 MPC_Matrices.py:矩阵初始化部分函数
+
 mujoco_ctrl.py:mujoco的一些学习代码实例（无用）
+
 test.py：numpy的一些学习代码尝试（无用）
+
 ## 运行效果
 运行math_MPC_test.py，不加速版本效果
 
