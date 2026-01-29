@@ -1,0 +1,9 @@
+# 屏蔽 Python 编译缓存（必须！）
+__pycache__/
+*.pyc
+
+# 屏蔽 PyCharm 的配置文件夹（如果你队友用 PyCharm）
+.idea/
+
+# 屏蔽 VS Code 自己的配置文件夹（通常不需要上传，除非你们团队强制统一配置）
+.vscode/
